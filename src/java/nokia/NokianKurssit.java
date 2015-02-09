@@ -46,25 +46,29 @@ public class NokianKurssit {
         List<Kurssi> kurssit=new LinkedList<>();
         
         System.out.println(alkupäivä + " - " + loppupäivä);
+        try(
+            Connection c=db.getConnection();
 
-        Connection c=db.getConnection();
-        
-        PreparedStatement ps=c.prepareStatement(
-                "select tradedate,closing_price from kurssit where "
-                +"tradedate between ? and ?"
-        );
-        
-        ps.setDate(1, alkupäivä);
-        ps.setDate(2, loppupäivä);
-        
-        ResultSet rs=ps.executeQuery();
-        
-        while(rs.next()){
-            kurssit.add(new Kurssi(
-                    rs.getDate("TRADEDATE"),
-                    rs.getBigDecimal("CLOSING_PRICE")));
+            PreparedStatement ps=c.prepareStatement(
+                    "select tradedate,closing_price from kurssit where "
+                    +"tradedate between ? and ?"
+            );){
+
+            ps.setDate(1, alkupäivä);
+            ps.setDate(2, loppupäivä);
+
+            ResultSet rs=ps.executeQuery();
+
+            while(rs.next()){
+                kurssit.add(new Kurssi(
+                        rs.getDate("TRADEDATE"),
+                        rs.getBigDecimal("CLOSING_PRICE")));
+            }
         }
-        
+        //ei tartte kun on try with resources
+//        rs.close();
+//        ps.close();
+//        c.close();
         return kurssit;
     }
 
